@@ -1,3 +1,26 @@
-from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
+from .serializers import NumberSerializer
 
-# Create your views here.
+class Classify_Api(APIView):
+    serializer_class = NumberSerializer
+    def get(self, request):
+        """Handles GET requests by accepting a number from query parameters."""
+        serializer = NumberSerializer(data=request.GET)
+
+        if serializer.is_valid():
+            number_data = serializer.get_number_properties(serializer.validated_data['number'])
+            return Response(number_data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        """Handles POST requests by accepting a number from request body (JSON)."""
+        serializer = NumberSerializer(data=request.data)  # Use request.data for POST
+
+        if serializer.is_valid():
+            number_data = serializer.get_number_properties(serializer.validated_data['number'])
+            return Response(number_data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
